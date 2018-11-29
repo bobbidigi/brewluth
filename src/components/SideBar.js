@@ -1,61 +1,56 @@
 import React, { Component } from 'react';
-import VenueList from './VenueList.js';
 
-class Sidebar extends Component {
-  state = {
-    query: ""
-  }
+class SideBar extends Component {
 
-  filterSidebarBreweries = () => {
-    if (this.state.query.trim !== "") {
-      const breweries = this.props.breweries.filter(breweryListing => {
-        breweryListing.venue.name.toLowerCase().includes(this.state.query.toLowerCase())
-      })
-      return breweries;
+  constructor(props) {
+    super(props);
+    this.state = {
+      query: '',
     }
-    return this.props.venues;
+    // this.handleChange = this.handleChange.bind(this)
+    this.handleClick = this.handleClick.bind(this)
   }
 
-  handleUpdate = (e) => {
-    this.setState({
-      query: e.target.value
-    });
-    const markers = this.props.breweries.map(breweries => {
-      const firstMatch = breweries.venue.name.toLowerCase().includes(e.target.value.toLowerCase());
-      const marker = this.props.markers.find(
-        (marker) => marker.id === breweries.venue.id
-      );
-      if (firstMatch) {
-        marker.setVisible(true);
-        marker.setAnimation(window.google.maps.Animation.BOUNCE);
-        setTimeout(function(){ marker.setAnimation(null); }, 750);
-      } else {
-        marker.setVisible(false);
-      }
-      return markers;
-    });
-  };
+  //Handle User Input
+  // handleChange(event) {
+  //   this.props.onFilter(event.target.value);
+  //   this.setState({ query: event.target.value })
+  // }
+  //Handle User Click
+  handleClick(venue) {
+    this.props.passClick(venue);
+  }
 
   render() {
-    return (
-      <aside id="sideBarContainer">
-        <h1 id="sideBarHeader">Duluth, MN</h1>
-        <label>Search Breweries</label>
-        <input
-          id="filter"
-          type="search"
-          placeholder="Brewery"
-          onChange={this.handleUpdate}
-        />
-        <VenueList
-          {...this.props}
-          whenSideBarBreweryClicked={this.props.whenSideBarBreweryClicked}
-          breweries={this.filterSidebarBreweries()}
-          />
-      </aside>
-    );
-  }
+    // const query = this.state.query
 
+    // let blahblah = query === 0;
+    // const handler = blahblah
+      // ? this.state.breweries
+      // : this.props.searchVenue
+
+    return (
+      // <nav id='sidebar' className='col-xs-12 col-md-4 col-lg-5' tabIndex='1'
+      //   aria-labelledby='listbox'>
+
+       
+        <ul id="sideBarContainer" >
+          {this.props.breweries && this.props.breweries.map((venueItem) =>
+            <li className='listItem' role='listitem' key={venueItem.venue.id}
+              tabIndex='3'
+              aria-labelledby='listitem'>
+              <h4 id="siteTitle" onClick={() => this.handleClick(venueItem)}>
+              {venueItem.venue.name}
+              </h4>
+              <p>{venueItem.venue.location.formattedAddress}</p>
+            </li>)
+          }
+        </ul>
+
+
+      // </nav>
+  );
+}
 }
 
-export default Sidebar;
+export default SideBar;

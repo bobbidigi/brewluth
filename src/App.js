@@ -6,12 +6,30 @@ import SideBar from './components/SideBar.js';
 import Map from './components/Map.js';
 
 class App extends Component {
-  state = {
-    breweries: [],
-    markers: [],
-    infowindow: [],
-    content: []
+  // state = {
+  //   super(props);
+  //   breweries: [],
+  //   markers: [],
+  //   infowindow: [],
+  //   content: []
+  // }
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      breweries: [],
+      query: '',
+      searchVenue: [],
+      markers: [],
+      infoWindow: null,
+      map: null,
+      hasError: false,
+    };
+    // this.handleInputChange = this.handleInputChange.bind(this);
+    // this.mapError = this.mapError.bind(this)
   }
+
+
 
   // Get venue data from Foursquare when component mounts
   componentDidMount() {
@@ -40,11 +58,15 @@ class App extends Component {
     <p>${breweryListItem.location.formattedAddress[1]}</p>
     `;
 
+    this.setState({ content: content });
+
     markers.map(marker => {
       if (marker.id === breweryListItem.id) {
-        // window.google.maps.infowindow.setContent(content);
-        // window.google.maps.infowindow.open(this.initMap, marker);
-        console.log(marker.id)
+        window.infowindow.setContent(this.state.content);
+        // window.google.maps.infowindow.open(this.map, marker);
+        console.log(marker.id);
+        marker.isOpen = true;
+        // infowindow.open(marker);
         marker.setAnimation(window.google.maps.Animation.BOUNCE);
         setTimeout(function(){ marker.setAnimation(null); }, 750);
       } else {
@@ -112,17 +134,26 @@ class App extends Component {
       map: map,
       title: title,
       id: id,
+      isOpen: false,
       animation: animation
     })
 
     this.setState(() => this.state.markers.push(marker));
-
+    
     // Update content of and open an info window when marker clicked
+    // * Adds click event listener to markers
       marker.addListener("click", () => {
+      // * Resets info window content when marker is clicked
       this.setState({ content: content });
+      // * Sets info window content based on state
       infowindow.setContent(this.state.content);
-      infowindow.open(map, marker);
-
+      // * Opens info window on marker when clicked
+      marker.isOpen = true;
+      if(marker.isOpen){
+        infowindow.open(map, marker);
+      }
+      
+      // * Markers bounce once when clicked
       if (marker.title === stateBreweries.venue.name) {
         marker.setAnimation(window.google.maps.Animation.BOUNCE);
         setTimeout(function(){ marker.setAnimation(null); }, 750);
@@ -134,11 +165,28 @@ class App extends Component {
   });
 };
 
+
+  //Open Infowindows onClick of List Item
+  handleClick = brewery => {
+    console.log(brewery);
+    this.state.markers.forEach(mapMarker => {
+      if (mapMarker.id === brewery.venue.id) {
+        console.log(mapMarker, brewery);
+        // this.openInfoWindow(mapMarker, brewery);
+      }
+    });
+  }
+
+
   render() {
     return (
       <div className="App">
       <main id="main">
-        <SideBar {...this.state} whenSideBarBreweryClicked={this.whenSideBarBreweryClicked} />
+        <SideBar 
+        {...this.state} 
+        // whenSideBarBreweryClicked={this.whenSideBarBreweryClicked} 
+        passClick={this.handleClick}
+        />
         <Map {...this.state} />
       </main>
     </div>

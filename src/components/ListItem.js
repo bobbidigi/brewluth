@@ -7,8 +7,12 @@ class ListItem extends Component {
     return (
       <li
         className="listItem"
-        onClick={() => this.props.whenSideBarBreweryClicked(this.props.venue)}>
-        {this.props.venue.name}
+        // onClick={() => this.props.handleClick(this.props.venue)
+        // onClick={() => this.props.whenSideBarBreweryClicked(this.props.venue)}>
+        {...this.props}
+        >
+
+        <p onClick={() => this.props.handleClick(this.props.venue)}>{this.props.venue.name}</p>
       </li>
     );
   }

@@ -49,32 +49,32 @@ class App extends Component {
     window.initMap = this.initMap;
   }
 
-  whenSideBarBreweryClicked = (breweryListItem) => {
-    console.log(breweryListItem.id)
-    const markers = this.state.markers;
-    const content = `
-    <h4>${breweryListItem.name}</h4 <br>
-    <p>${breweryListItem.location.formattedAddress[0]}</p>
-    <p>${breweryListItem.location.formattedAddress[1]}</p>
-    `;
+  // whenSideBarBreweryClicked = (breweryListItem) => {
+  //   console.log(breweryListItem.id)
+  //   const markers = this.state.markers;
+  //   const content = `
+  //   <h4>${breweryListItem.name}</h4 <br>
+  //   <p>${breweryListItem.location.formattedAddress[0]}</p>
+  //   <p>${breweryListItem.location.formattedAddress[1]}</p>
+  //   `;
 
-    this.setState({ content: content });
+  //   this.setState({ content: content });
 
-    markers.map(marker => {
-      if (marker.id === breweryListItem.id) {
-        window.infowindow.setContent(this.state.content);
-        // window.google.maps.infowindow.open(this.map, marker);
-        console.log(marker.id);
-        marker.isOpen = true;
-        // infowindow.open(marker);
-        marker.setAnimation(window.google.maps.Animation.BOUNCE);
-        setTimeout(function(){ marker.setAnimation(null); }, 750);
-      } else {
-        marker.setAnimation(null);
-        console.log("not a match")
-      }
-    })
-  }
+  //   markers.map(marker => {
+  //     if (marker.id === breweryListItem.id) {
+  //       window.infowindow.setContent(this.state.content);
+  //       // window.google.maps.infowindow.open(this.map, marker);
+  //       console.log(marker.id);
+  //       marker.isOpen = true;
+  //       // infowindow.open(marker);
+  //       marker.setAnimation(window.google.maps.Animation.BOUNCE);
+  //       setTimeout(function(){ marker.setAnimation(null); }, 750);
+  //     } else {
+  //       marker.setAnimation(null);
+  //       console.log("not a match")
+  //     }
+  //   })
+  // }
 
   // Data needed when using Foursquare API
   getVenues = () => {
@@ -111,7 +111,13 @@ class App extends Component {
     });
 
     // Create infowindow outside of loop
-    const infowindow = new window.google.maps.InfoWindow({
+    let infowindow = new window.google.maps.InfoWindow({
+      content: '',
+      map: map,
+      venue: '',
+    });
+    this.setState({
+      infoWindow: infowindow
     });
 
     // Map through breweries in state and add a marker for each venue
@@ -143,9 +149,9 @@ class App extends Component {
     // Update content of and open an info window when marker clicked
     // * Adds click event listener to markers
       marker.addListener("click", () => {
-      // * Resets info window content when marker is clicked
+      // // * Resets info window content when marker is clicked
       this.setState({ content: content });
-      // * Sets info window content based on state
+      // // * Sets info window content based on state
       infowindow.setContent(this.state.content);
       // * Opens info window on marker when clicked
       marker.isOpen = true;
@@ -162,9 +168,24 @@ class App extends Component {
         marker.setAnimation(null);
       }, 3000);
     });
+
   });
 };
 
+
+  openInfoWindow = (marker, venue) => {
+
+    if (marker.getAnimation() !== null) {
+      marker.setAnimation(null);
+    } else {
+      marker.setAnimation(window.google.maps.Animation.BOUNCE);
+    } setTimeout(() => {
+      marker.setAnimation(null, 1500)
+    });
+
+    this.state.infoWindow.setContent(`<h4>${venue.venue.name}</h4>${venue.venue.location.formattedAddress}<p></p>`);
+    this.state.infoWindow.open(this.state.map, marker);
+  };
 
   //Open Infowindows onClick of List Item
   handleClick = brewery => {
@@ -172,7 +193,7 @@ class App extends Component {
     this.state.markers.forEach(mapMarker => {
       if (mapMarker.id === brewery.venue.id) {
         console.log(mapMarker, brewery);
-        // this.openInfoWindow(mapMarker, brewery);
+        this.openInfoWindow(mapMarker, brewery);
       }
     });
   }
